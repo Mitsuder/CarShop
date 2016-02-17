@@ -157,9 +157,6 @@ class Action
         OleDbCommand command = new OleDbCommand("SELECT * FROM Car", con);
         try {
             con.Open();
-            Console.WriteLine();
-
-/*я просто напишу здесь всякой чуши, чтобы были изменения и было, что отправлять, а то что-то не получается!*/
             OleDbDataReader reader = command.ExecuteReader();
             while (reader.Read())
             {
