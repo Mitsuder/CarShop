@@ -16,20 +16,7 @@ class Car : IComparable
     private int id;
 
 
-    public static void Help()
-    {
-        Console.WriteLine("Список комманд:");
-        Console.WriteLine("<exit>                               - выход из программы");
-        Console.WriteLine("<-load [путь к файлу]>               - загрузка данных из указанного файла\n" +
-                          "в имени файла не должно быть пробелов");
-        Console.WriteLine("<-list>                              - отображение текущих данных");
-        Console.WriteLine("<-edit[ID];[новые параметры записи]> - замена всех свойств в строке #ID");
-        Console.WriteLine("<-add [параметры записи]>            - добавление в список новой строки");
-        Console.WriteLine("<-remove [ID]>                       - удаление строки из списка");
-        Console.WriteLine("<-save>                              - сохранение файла");
-        Console.WriteLine();
 
-    }
 
     public int CompareTo(object c)
     {
@@ -90,21 +77,37 @@ class Car : IComparable
     public Car(string s)                          //конструктор
     {
         string[] sub = s.Split(';');
-        id = Action.Id++;
-        if (sub.Length != 7)
+        if (sub.Length == 7)
         {
-            Console.WriteLine("обнаружена некорректная строка, создан объект:");
-            man = "некорректно";
-            mod = "некорректно";
+            id = Action.Id++;
+            man = sub[0];
+            mod = sub[1];
+            d = DateTime.Parse(sub[2]);
+            vol = Double.Parse(sub[3]);
+            pow = Int32.Parse(sub[4]);
+            if (sub[5] == "AT") tra = trancemission.AT;
+            else tra = trancemission.MT;
             return;
         }
-        man = sub[0];
-        mod = sub[1];
-        d = DateTime.Parse(sub[2]);
-        vol = Double.Parse(sub[3]);
-        pow = Int32.Parse(sub[4]);
-        if (sub[5] == "AT") tra = trancemission.AT;
-        else tra = trancemission.MT;        
+        throw new Exception("Обнаружена некорректная строка. Объект не будет создан");
+    }
+
+    public Car(string s, int i)                          //конструктор
+    {
+        string[] sub = s.Split(';');
+        if (sub.Length == 7)
+        {
+            id = i;
+            man = sub[0];
+            mod = sub[1];
+            d = DateTime.Parse(sub[2]);
+            vol = Double.Parse(sub[3]);
+            pow = Int32.Parse(sub[4]);
+            if (sub[5] == "AT") tra = trancemission.AT;
+            else tra = trancemission.MT;
+            return;
+        }
+        throw new Exception(@"[обнаружена некорректная строка. Объект не будет создан]");
     }
 
     public override string ToString()
@@ -115,19 +118,134 @@ class Car : IComparable
 
 }
 
-class Action
+class bas
 {
-    public static int Id = 0;
-    static string s = null;
-    static string[] command;
-    static int idx;
-    public static List<Car> obj = new List<Car>();
-    static bool TB = false;
-
-    static List<Car> OpenFile(string s)
+    public static List<Car> OpenBase()
     {
-        obj.Clear();
-        Id = 0;
+        Action.obj.Clear();
+        Action.Id = 0;
+        OleDbConnection con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
+
+        Dictionary<int, string> x = new Dictionary<int, string>();
+        OleDbCommand command = new OleDbCommand("SELECT * FROM Trancemission", con);
+        try
+        {
+            con.Open();
+            OleDbDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                x.Add(reader.GetInt32(0), reader.GetString(1));
+            }
+        }
+        catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
+        finally { con.Close(); }
+
+        command = new OleDbCommand("SELECT * FROM Car", con);
+        try
+        {
+            con.Open();
+            OleDbDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                string str = reader.GetString(0) + ";" + reader.GetString(1) + ";" + reader.GetDateTime(2).ToShortDateString() + ";" + reader.GetDouble(3) + ";" + reader.GetInt32(4) + ";" + x[reader.GetInt32(5)] + ";";
+                Action.obj.Add(new Car(str, reader.GetInt32(6)));
+            }
+            Console.WriteLine("Информация из БД успешно загружена");
+        }
+        catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
+        finally { con.Close(); }
+        return Action.obj;
+    }
+
+    public static void AddItem()
+    {
+        return;
+    }
+
+    public static void RemoveItem(int x)
+    {
+        OleDbConnection con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
+        string comm = "DELETE FROM Car WHERE id = " + x;
+        OleDbCommand command = new OleDbCommand(comm, con);
+        try
+        {
+            con.Open();
+            command.ExecuteNonQuery();
+        }
+        catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
+        finally { con.Close(); }
+        Action.idx = x;
+        Action.idx = Action.obj.FindIndex(Action.IsID);
+        if (Action.idx >= 0)
+        {
+            Action.obj.RemoveAt(Action.idx);
+            Console.WriteLine("объект с ID={0} удален", x);
+            Action.idx = -1;
+            return;
+        }
+        Console.WriteLine("не удалось найти объект с ID={0}", x);
+        return;
+    }
+
+    public static void EditItem(int x, string s)
+    {
+        OleDbConnection con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
+
+        Dictionary<int, string> y = new Dictionary<int, string>();
+        OleDbCommand command = new OleDbCommand("SELECT * FROM Trancemission", con);
+        try
+        {
+            con.Open();
+            OleDbDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                y.Add(reader.GetInt32(0), reader.GetString(1));
+            }
+        }
+        catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
+        finally { con.Close(); }
+
+        string[] temp = s.Split(';');
+
+        int i = -1;
+        foreach (KeyValuePair<int, string> O in y)
+        {
+            if (O.Value == temp[5])
+                i = O.Key;
+        }
+        if (i > 0) { 
+        con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
+        string comm = String.Format("UPDATE Car SET [manufacturer]={0}, [model]={1}, [date]={2}, [volume] = {3}, [power] ={4}, [TrancemissionID]={5}  WHERE [ID] ={6}", temp[0], temp[1], DateTime.Parse(temp[2]).ToShortDateString(), temp[3], temp[4],i, x);
+        Console.WriteLine(comm);
+        command = new OleDbCommand(comm, con);
+        try
+        {
+            con.Open();
+            command.ExecuteNonQuery();
+        }
+        catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
+        finally { con.Close(); }
+
+        Action.idx = x;
+        Action.idx = Action.obj.FindIndex(Action.IsID);
+        if (Action.idx >= 0)
+        {
+            Action.obj[Action.idx] = new Car(s);
+            Console.WriteLine("объект с ID={0} заменен", x);
+            Action.idx = -1;
+            return;
+        }
+        }
+        Console.WriteLine("не удалось найти объект с ID={0}", x);
+    }
+}
+
+class tex
+{
+    public static List<Car> OpenFile(string s)
+    {
+        Action.obj.Clear();
+        Action.Id = 0;
         StreamReader file = null;
         try
         {
@@ -136,54 +254,31 @@ class Action
             string temp = file.ReadLine();
             while (temp != null)
             {
-                obj.Add(new Car(temp));
+                Action.obj.Add(new Car(temp));
                 temp = file.ReadLine();
-                
+
             }
         }
         catch (Exception exc)
         {
-            Console.WriteLine("не удалось открыть файл {0} потому что {1}", s,exc);
+            Console.WriteLine("не удалось открыть файл {0} потому что {1}", s, exc.Message);
         }
         finally { file.Close(); }
-        return obj;
+        return Action.obj;
     }
 
-    static List<Car> OpenBase()
-    {
-        obj.Clear();
-        Id = 0;
-        OleDbConnection con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
-        OleDbCommand command = new OleDbCommand("SELECT * FROM Car", con);
-        try {
-            con.Open();
-            OleDbDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                string str = reader.GetString(0) + ";" + reader.GetString(1) + ";" + reader.GetDateTime(2).ToShortDateString() + ";" + reader.GetDouble(3) + ";" + reader.GetInt32(4) + ";"+ reader.GetString(5)+";";
-                obj.Add(new Car(str));
-            }
-
-            Console.WriteLine("Информация из БД успешно загружена");
-
-        }
-
-        catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
-        finally { con.Close(); }
-        return obj;
-    }
-
-    static void SaveFile(List<Car> obj, string s)
+    public static void SaveFile(List<Car> obj, string s)
     {
         StreamWriter file = null;
         int j = 0;
         try
         {
             file = new StreamWriter(s);
-            foreach (Car i in obj) {
-                if (obj[j] != null) file.WriteLine(obj[j].manufacturer+ ";" + obj[j].model+";" 
-                                                   + obj[j].date.ToShortDateString() + ";" + obj[j].volume + ";" + 
-                                                   obj[j].power + ";" + obj[j].trance+";");
+            foreach (Car i in obj)
+            {
+                if (obj[j] != null) file.WriteLine(obj[j].manufacturer + ";" + obj[j].model + ";"
+                                                   + obj[j].date.ToShortDateString() + ";" + obj[j].volume + ";" +
+                                                   obj[j].power + ";" + obj[j].trance + ";");
                 j++;
             }
             file.Flush();
@@ -196,38 +291,63 @@ class Action
         file.Close();
     }
 
+    public static void RemoveItem(int x)
+    {
+        Action.idx = x;
+        Action.idx = Action.obj.FindIndex(Action.IsID);
+        if (Action.idx >= 0)
+        {
+            Action.obj.RemoveAt(Action.idx);
+            Console.WriteLine("объект с ID={0} удален", x);
+            Action.idx = -1;
+
+            return;
+            }
+        Console.WriteLine("не удалось найти объект с ID={0}", x);
+    }
+
+    public static void EditItem(int x, string s)
+    {
+        Action.idx = x;
+        Action.idx = Action.obj.FindIndex(Action.IsID);
+        if (Action.idx >= 0)
+        {
+            Action.obj[Action.idx] = new Car(s);
+            Console.WriteLine("объект с ID={0} заменен", Action.idx);
+            Action.idx = -1;
+            return;
+        }
+        Console.WriteLine("не удалось найти объект с ID={0}", x);
+    }
+}
+
+class Action
+{
+    public static int Id = 0;
+    static string s = null;
+    static string[] command;
+    public static int idx;
+    public static List<Car> obj = new List<Car>();
+
+    public static void Help()
+    {
+        Console.WriteLine("Список комманд:");
+        Console.WriteLine("<exit>                               - выход из программы");
+        Console.WriteLine("<-load [путь к файлу]>               - загрузка данных из указанного файла\n" +
+                          "в имени файла не должно быть пробелов");
+        Console.WriteLine("<-list>                              - отображение текущих данных");
+        Console.WriteLine("<-edit[ID];[новые параметры записи]> - замена всех свойств в строке #ID");
+        Console.WriteLine("<-add [параметры записи]>            - добавление в список новой строки");
+        Console.WriteLine("<-remove [ID]>                       - удаление строки из списка");
+        Console.WriteLine("<-save>                              - сохранение файла");
+        Console.WriteLine();
+
+    }
+
     public static void Show(List<Car> obj)
     {
         foreach (Car o in obj)
             Console.WriteLine(o);
-    }
-
-    static void RemoveItem(int x)
-    {
-        idx = x;
-        idx = obj.FindIndex(Action.IsID);
-        if (idx >= 0)
-        {
-            obj.RemoveAt(idx);
-            Console.WriteLine("объект с ID={0} удален", idx);
-        }
-        else Console.WriteLine("не удалось найти объект с ID={0}", x);
-        idx = -1;
-
-    }
-
-    static void EditItem(int x, string s)
-    {
-        idx = x;
-        idx = obj.FindIndex(Action.IsID);
-        if (idx >= 0)
-        {
-            obj[idx] = new Car(s);
-            Console.WriteLine("объект с ID={0} заменен", idx);
-        }
-        else Console.WriteLine("не удалось найти объект с ID={0}", x);
-        idx = -1;
-
     }
 
     public static bool IsID(Car x)
@@ -235,13 +355,9 @@ class Action
         return x.ID == idx;
     }
 
-    static void Main()
+    static void CommandText()
     {
         bool flag = false;
-        Console.WriteLine("Нажми b, если хочешь работать с базой или t если с файлом txt");
-        if (Console.ReadLine()[0] == 'b')
-            TB = true;
-
         while (s != "exit")
         {
             if (!flag) Console.WriteLine("введите комманду. Для помощи введите <-help>");
@@ -253,11 +369,9 @@ class Action
                 switch (command[0])
                 {
                     case "exit": return;
-                    case "-help": Car.Help(); break;
+                    case "-help": Action.Help(); break;
                     case "-load":
-                        if (TB == true)
-                            obj = OpenBase();
-                        else obj = OpenFile(command[1]);
+                        obj = tex.OpenFile(command[1]);
                         break;
 
 
@@ -265,17 +379,17 @@ class Action
                         obj.Add(new Car(command[1]));
                         break;
                     case "-remove":
-                        RemoveItem(Int32.Parse(command[1]));
+                        tex.RemoveItem(Int32.Parse(command[1]));
                         break;
                     case "-save":
-                        SaveFile(obj, command[1]);
+                        tex.SaveFile(obj, command[1]);
                         break;
                     case "-list":
                         //Console.WriteLine("открыт файл " + command[1] + ". Вот его содержимое:\n");
                         Action.Show(obj);
                         break;
                     case "-edit":
-                        EditItem(Int32.Parse(command[1]), command[2]);
+                        tex.EditItem(Int32.Parse(command[1]), command[2]);
                         break;
                     case "-sort":
                         obj.Sort();
@@ -284,8 +398,59 @@ class Action
 
                 }
             }
-            catch (Exception exc) { Console.WriteLine("что то пошло не так: " + exc.Message); }
+            catch (Exception) { Console.WriteLine("что то пошло не так"); }
         }
+
+    }
+
+    static void CommandBase()
+    {
+        bool flag = false;
+        while (s != "exit")
+        {
+            if (!flag) Console.WriteLine("введите комманду. Для помощи введите <-help>");
+            s = Console.ReadLine();
+            command = s.Split(' ');
+            flag = false;
+            try
+            {
+                switch (command[0])
+                {
+                    case "exit": return;
+                    case "-help": Action.Help(); break;
+                    case "-load":
+                            obj = bas.OpenBase();
+                        break;
+                    //case "-add":
+                    //    obj.Add(new Car(command[1]));
+                    //    break;
+                    case "-remove":
+                        bas.RemoveItem(Int32.Parse(command[1]));
+                        break;
+                    case "-list":
+                        Action.Show(obj);
+                        break;
+                    case "-edit":
+                        bas.EditItem(Int32.Parse(command[1]), command[2]);
+                        break;
+                    case "-sort":
+                        obj.Sort();
+                        break;
+                    default: Console.WriteLine("некорректная комманда. Для списка комманд введите <-help>"); flag = true; break;
+
+                }
+            }
+            catch (Exception) { Console.WriteLine("что то пошло не так"); }
+        }
+
+    }
+
+    static void Main()
+    {
+        Console.WriteLine("Нажми b, если хочешь работать с базой или t если с файлом txt");
+        if (Console.ReadLine()[0] == 'b')
+            Action.CommandBase();
+        else Action.CommandText();
     }
 }
 
