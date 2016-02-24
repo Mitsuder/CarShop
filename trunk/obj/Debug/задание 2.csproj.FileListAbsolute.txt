@@ -1,0 +1,9 @@
+C:\Users\Фирсов\Documents\Visual Studio 2015\Projects\CarShop\trunk\bin\Debug\задание2.exe.config
+C:\Users\Фирсов\Documents\Visual Studio 2015\Projects\CarShop\trunk\bin\Debug\db1.mdb
+C:\Users\Фирсов\Documents\Visual Studio 2015\Projects\CarShop\trunk\bin\Debug\задание2.exe
+C:\Users\Фирсов\Documents\Visual Studio 2015\Projects\CarShop\trunk\bin\Debug\задание2.pdb
+C:\Users\Фирсов\Documents\Visual Studio 2015\Projects\CarShop\trunk\obj\Debug\задание 2.csprojResolveAssemblyReference.cache
+C:\Users\Фирсов\Documents\Visual Studio 2015\Projects\CarShop\trunk\obj\Debug\задание_2.Properties.Resources.resources
+C:\Users\Фирсов\Documents\Visual Studio 2015\Projects\CarShop\trunk\obj\Debug\задание 2.csproj.GenerateResource.Cache
+C:\Users\Фирсов\Documents\Visual Studio 2015\Projects\CarShop\trunk\obj\Debug\задание2.exe
+C:\Users\Фирсов\Documents\Visual Studio 2015\Projects\CarShop\trunk\obj\Debug\задание2.pdb

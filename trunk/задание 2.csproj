@@ -94,11 +94,6 @@
   </Target>
   -->
   <ItemGroup>
-    <Compile Include="db1DataSet.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>db1DataSet.xsd</DependentUpon>
-    </Compile>
     <Compile Include="ex2.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -114,17 +109,6 @@
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
-    </None>
-    <None Include="db1DataSet.xsc">
-      <DependentUpon>db1DataSet.xsd</DependentUpon>
-    </None>
-    <None Include="db1DataSet.xsd">
-      <Generator>MSDataSetGenerator</Generator>
-      <LastGenOutput>db1DataSet.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="db1DataSet.xss">
-      <DependentUpon>db1DataSet.xsd</DependentUpon>
     </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -170,9 +154,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="conn.txt" />
-    <Content Include="db1.mdb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

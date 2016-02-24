@@ -189,42 +189,28 @@ class bas
 
     public static void EditItem(int x, string s)
     {
-        OleDbConnection con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
-
-        Dictionary<int, string> y = new Dictionary<int, string>();
-        OleDbCommand command = new OleDbCommand("SELECT * FROM Trancemission", con);
-        try
-        {
-            con.Open();
-            OleDbDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                y.Add(reader.GetInt32(0), reader.GetString(1));
-            }
-        }
-        catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
-        finally { con.Close(); }
-
         string[] temp = s.Split(';');
 
         int i = -1;
-        foreach (KeyValuePair<int, string> O in y)
+        foreach (KeyValuePair<int, string> O in Action.TranceDic)
         {
             if (O.Value == temp[5])
                 i = O.Key;
         }
-        if (i > 0) { 
-        con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
-        string comm = String.Format("UPDATE Car SET [manufacturer]={0}, [model]={1}, [date]={2}, [volume] = {3}, [power] ={4}, [TrancemissionID]={5}  WHERE [ID] ={6}", temp[0], temp[1], DateTime.Parse(temp[2]).ToShortDateString(), temp[3], temp[4],i, x);
-        Console.WriteLine(comm);
-        command = new OleDbCommand(comm, con);
-        try
+        if (i >= 0)
         {
-            con.Open();
-            command.ExecuteNonQuery();
-        }
-        catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
-        finally { con.Close(); }
+            OleDbConnection con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
+            string com = String.Format("UPDATE Car SET manufacturer='{0}', model='{1}', dat='{2}', volume = '{3}', power ='{4}', TrancemissionID='{5}' WHERE ID ={6}", temp[0], temp[1], DateTime.Parse(temp[2]).ToShortDateString(), temp[3], temp[4],i, x);
+
+            Console.WriteLine(com);
+            OleDbCommand command = new OleDbCommand(com, con);
+            try
+            {
+                con.Open();
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message.ToString());}
+            finally { con.Close(); }
 
         Action.idx = x;
         Action.idx = Action.obj.FindIndex(Action.IsID);
@@ -328,6 +314,7 @@ class Action
     static string[] command;
     public static int idx;
     public static List<Car> obj = new List<Car>();
+    public static Dictionary<int, string> TranceDic = new Dictionary<int, string>();
 
     public static void Help()
     {
@@ -405,6 +392,23 @@ class Action
 
     static void CommandBase()
     {
+//заполнение словаря видов трансмиссий
+        OleDbConnection con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
+        OleDbCommand comm = new OleDbCommand("SELECT * FROM Trancemission", con);
+        try
+        {
+            con.Open();
+            OleDbDataReader reader = comm.ExecuteReader();
+            while (reader.Read())
+            {
+                TranceDic.Add(reader.GetInt32(0), reader.GetString(1));
+            }
+        }
+        catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
+        finally { con.Close(); }
+//конец заполнения
+
+        obj = bas.OpenBase();
         bool flag = false;
         while (s != "exit")
         {
