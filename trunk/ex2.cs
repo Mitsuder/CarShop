@@ -164,20 +164,20 @@ class bas
 
     public static void RemoveItem(int x)
     {
-        OleDbConnection con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
-        string comm = "DELETE FROM Car WHERE id = " + x;
-        OleDbCommand command = new OleDbCommand(comm, con);
-        try
-        {
-            con.Open();
-            command.ExecuteNonQuery();
-        }
-        catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
-        finally { con.Close(); }
         Action.idx = x;
         Action.idx = Action.obj.FindIndex(Action.IsID);
         if (Action.idx >= 0)
         {
+                OleDbConnection con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
+            string comm = "DELETE FROM Car WHERE id = " + x;
+            OleDbCommand command = new OleDbCommand(comm, con);
+            try
+            {
+                con.Open();
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
+            finally { con.Close(); }
             Action.obj.RemoveAt(Action.idx);
             Console.WriteLine("объект с ID={0} удален", x);
             Action.idx = -1;
