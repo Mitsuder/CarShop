@@ -118,7 +118,7 @@ class Car : IComparable
 
 }
 
-class bas
+class baseWork
 {
     public static List<Car> OpenBase()
     {
@@ -157,10 +157,34 @@ class bas
         return Action.obj;
     }
 
-    public static void AddItem()
+    public static void AddItem(string s)
     {
+        string[] temp = s.Split(';');
+        int i = -1;
+        foreach (KeyValuePair<int, string> O in Action.TranceDic)
+        {
+            if (O.Value == temp[5])
+                i = O.Key;
+        }
+        if (i > 0)
+        {
+            OleDbConnection con = new OleDbConnection(ConfigurationManager.ConnectionStrings["ConStr"].ConnectionString);
+            string comm = String.Format("INSERT INTO Car (manufacturer, model, dat, volume, power,TrancemissionID) VALUES ('{0}','{1}','{2}',{3},{4},{5})", temp[0], temp[1], DateTime.Parse(temp[2]).ToShortDateString(), temp[3], temp[4],i);
+            OleDbCommand command = new OleDbCommand(comm, con);
+            try
+            {
+                con.Open();
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message.ToString()); }
+            finally { con.Close(); }
+            Action.obj.Add(new Car(s));
+            Console.WriteLine("объект добавлен");
+        }
+        else Console.WriteLine("нет такой коробки");
         return;
     }
+    
 
     public static void RemoveItem(int x)
     {
@@ -226,7 +250,7 @@ class bas
     }
 }
 
-class tex
+class textWork
 {
     public static List<Car> OpenFile(string s)
     {
@@ -358,7 +382,7 @@ class Action
                     case "exit": return;
                     case "-help": Action.Help(); break;
                     case "-load":
-                        obj = tex.OpenFile(command[1]);
+                        obj = textWork.OpenFile(command[1]);
                         break;
 
 
@@ -366,17 +390,17 @@ class Action
                         obj.Add(new Car(command[1]));
                         break;
                     case "-remove":
-                        tex.RemoveItem(Int32.Parse(command[1]));
+                        textWork.RemoveItem(Int32.Parse(command[1]));
                         break;
                     case "-save":
-                        tex.SaveFile(obj, command[1]);
+                        textWork.SaveFile(obj, command[1]);
                         break;
                     case "-list":
                         //Console.WriteLine("открыт файл " + command[1] + ". Вот его содержимое:\n");
                         Action.Show(obj);
                         break;
                     case "-edit":
-                        tex.EditItem(Int32.Parse(command[1]), command[2]);
+                        textWork.EditItem(Int32.Parse(command[1]), command[2]);
                         break;
                     case "-sort":
                         obj.Sort();
@@ -408,7 +432,7 @@ class Action
         finally { con.Close(); }
 //конец заполнения
 
-        obj = bas.OpenBase();
+        obj = baseWork.OpenBase();
         bool flag = false;
         while (s != "exit")
         {
@@ -423,19 +447,19 @@ class Action
                     case "exit": return;
                     case "-help": Action.Help(); break;
                     case "-load":
-                            obj = bas.OpenBase();
+                            obj = baseWork.OpenBase();
                         break;
-                    //case "-add":
-                    //    obj.Add(new Car(command[1]));
-                    //    break;
+                    case "-add":
+                        baseWork.AddItem(command[1]);
+                        break;
                     case "-remove":
-                        bas.RemoveItem(Int32.Parse(command[1]));
+                        baseWork.RemoveItem(Int32.Parse(command[1]));
                         break;
                     case "-list":
                         Action.Show(obj);
                         break;
                     case "-edit":
-                        bas.EditItem(Int32.Parse(command[1]), command[2]);
+                        baseWork.EditItem(Int32.Parse(command[1]), command[2]);
                         break;
                     case "-sort":
                         obj.Sort();
