@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6F86E532-A829-4BC4-AF63-AC31CC770910}</ProjectGuid>
+    <ProjectGuid>{150F0106-FBC8-496C-92DE-82C1AD5824E8}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ClientApp</RootNamespace>
-    <AssemblyName>ClientApp</AssemblyName>
+    <RootNamespace>Client_App</RootNamespace>
+    <AssemblyName>Client App</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -47,7 +47,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Service References\WcfTest\Reference.cs">
+    <Compile Include="Service References\CarService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -55,11 +55,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Service References\WcfTest\Service1.wsdl" />
-    <None Include="Service References\WcfTest\Service1.xsd">
+    <None Include="Service References\CarService\Client_App.CarService.Car.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\CarService\Service1.wsdl" />
+    <None Include="Service References\CarService\Service1.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\WcfTest\Service11.xsd">
+    <None Include="Service References\CarService\Service11.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\CarService\Service12.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
@@ -67,19 +73,19 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\WcfTest\" />
+    <WCFMetadataStorage Include="Service References\CarService\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\WcfTest\Service1.disco" />
+    <None Include="Service References\CarService\Service1.disco" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\WcfTest\configuration91.svcinfo" />
+    <None Include="Service References\CarService\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\WcfTest\configuration.svcinfo" />
+    <None Include="Service References\CarService\configuration.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\WcfTest\Reference.svcmap">
+    <None Include="Service References\CarService\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
